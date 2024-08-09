@@ -32,6 +32,8 @@ public class PatronServiceImpl implements PatronService {
 	@Override
 	public PatronDto updatePatronById(Long patronId, PatronDto patronDto) {
 		Optional<Patron> patron = patronRepository.findById(patronId);
+		if(patron.isEmpty())
+	        throw new RuntimeException("Patron not found");
 		Patron patronObject = patron.get();
 		patronObject = patronMapper.mapPatronDtoToPatron(patronDto);
 		patronRepository.save(patronObject);
@@ -41,6 +43,8 @@ public class PatronServiceImpl implements PatronService {
 	@Override
 	public PatronDto getPatronById(Long patronId) {
 		Optional<Patron> patron = patronRepository.findById(patronId);
+		if(patron.isEmpty())
+	        throw new RuntimeException("Patron not found");
 		Patron patronObject = patron.get();
 		return patronMapper.mapToPatronDto(patronObject);
 	}
@@ -48,11 +52,17 @@ public class PatronServiceImpl implements PatronService {
 	@Override
 	public List<PatronDto> getAllPatrons() {
 		List<Patron> patronList = patronRepository.findAll();
+		if (patronList.isEmpty()) {
+	        throw new RuntimeException("No patrons found in the list");
+	    }
 		return patronMapper.mapToPatronDtoList(patronList);
 	}
 
 	@Override
 	public void deletePatronById(Long patronId) {
+		Optional<Patron> patron = patronRepository.findById(patronId);
+		if(patron.isEmpty())
+	        throw new RuntimeException("Patron not found");
 		patronRepository.deleteById(patronId);
 	}
 

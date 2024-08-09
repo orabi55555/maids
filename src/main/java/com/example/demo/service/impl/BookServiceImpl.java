@@ -56,13 +56,23 @@ public class BookServiceImpl implements BookService{
 
 	@Override
 	public List<BookDto> getAllBooks() {
-		List<Book> bookList = bookRepository.findAll();
-		return bookMapper.mapToBookDtoList(bookList);
+	    List<Book> books = bookRepository.findAll();
+	    if (books.isEmpty()) {
+	        throw new RuntimeException("No books found in the list");
+	    }
+	    return bookMapper.mapToBookDtoList(books);
 	}
+
 	
 	@Override
-	public void deleteBookById(Long bookId) {
-		bookRepository.deleteById(bookId);
+	public void deleteBookById(Long id) {
+	    Optional<Book> book = bookRepository.findById(id);
+	    if (book.isPresent()) {
+	        bookRepository.deleteById(id);
+	    } else {
+	        throw new RuntimeException("Book not found");
+	    }
 	}
+
 
 }

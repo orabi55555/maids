@@ -37,13 +37,12 @@ public class BorrowingRecordServiceImpl implements BorrowingRecordService {
 	@Transactional
 	public BorrowingRecordDto borrowBook(Long bookId, Long patronId) {
 		BorrowingRecord borrowingRecord = new BorrowingRecord();
-		
-		Optional<Book> book = bookRepository.findById(bookId);
-		borrowingRecord.setBook(book.get());
 
-		Optional<Patron> patron = patronRepository.findById(patronId);
-		borrowingRecord.setPatron(patron.get());
+		Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
+		Patron patron = patronRepository.findById(patronId).orElseThrow(() -> new RuntimeException("Patron not found"));
 
+		borrowingRecord.setPatron(patron);
+		borrowingRecord.setBook(book);
 		borrowingRecord.setBorrowDate(LocalDateTime.now());
 		borrowingRecordRepository.save(borrowingRecord);
 		return borrowingRecordMapper.mapToBorrowingRecordDto(borrowingRecord);
@@ -52,6 +51,9 @@ public class BorrowingRecordServiceImpl implements BorrowingRecordService {
 	@Override
 	public BorrowingRecordDto returnBook(Long bookId, Long patronId) {
 		BorrowingRecord borrowingRecord = borrowingRecordRepository.findByBookIdAndPatronId(bookId, patronId);
+		if (borrowingRecord == null) {
+	        throw new RuntimeException("Borrowing record not found");
+	    }
 		borrowingRecord.setReturnDate(LocalDateTime.now());
 		borrowingRecordRepository.save(borrowingRecord);
 		return borrowingRecordMapper.mapToBorrowingRecordDto(borrowingRecord);
